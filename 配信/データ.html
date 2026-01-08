@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+body {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+  height: 100vh;
+}
+
+#overlay {
+  background-color: rgba(0,0,0,0.5);
+  color: white;
+  padding: 8px;
+  font-size: 24px;
+  border-radius: 6px;
+  font-family: sans-serif;
+  line-height: 1.6;
+  word-wrap: break-word;
+}
+</style>
+</head>
+<body>
+
+<div id="overlay">読み込み中...</div>
+
+<script>
+// あなたの Web アプリ URL
+const baseUrl = "https://script.google.com/macros/s/AKfycbzQfViMKuXuIoXf1szWxpDTECI1jx0WeDV5O0FYPTV38pKDyzdZdobQCYvTjDOHqqT3/exec";
+
+// ▼ 現在のコース名を取得（mode=key）
+function fetchCurrentKey() {
+  return fetch(baseUrl + "?mode=key&t=" + Date.now())
+    .then(res => res.json())
+    .then(data => data.key)
+    .catch(err => {
+      console.error("key取得エラー:", err);
+      return "";
+    });
+}
+
+// ▼ コース名を使ってオーバーレイ内容を取得
+function fetchOverlay(key) {
+  return fetch(baseUrl + "?key=" + encodeURIComponent(key) + "&t=" + Date.now())
+    .then(res => res.json())
+    .catch(err => {
+      console.error("overlay取得エラー:", err);
+      return { html: "エラー: " + err };
+    });
+}
+
+// ▼ オーバーレイ更新処理
+function updateOverlay() {
+  fetchCurrentKey()
+    .then(key => {
+      if (!key) return;
+
+      return fetchOverlay(key);
+    })
+    .then(data => {
+      if (data && data.html) {
+        document.getElementById("overlay").innerHTML = data.html;
+      }
+    });
+}
+
+// ▼ 初回ロード & 5秒ごと更新
+window.onload = function() {
+  updateOverlay();
+  setInterval(updateOverlay, 5000);
+};
+</script>
+
+</body>
+</html>

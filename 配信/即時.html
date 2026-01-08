@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+body {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  display: flex;
+  justify-content: center;   /* 横方向中央 */
+  align-items: flex-end;     /* 下中央 */
+  height: 100vh;
+}
+#overlay {
+  background-color: rgba(0,0,0,0.5);
+  color: white;
+  padding: 12px;
+  font-size: 24px;
+  border-radius: 8px;
+  font-family: sans-serif;
+  display: flex;
+  gap: 20px;
+  justify-content: center;   /* 中央寄せ */
+  align-items: center;       /* 縦方向も中央寄せ */
+}
+.team {
+  white-space: nowrap;       /* 折り返さず横並び */
+}
+</style>
+</head>
+<body>
+<div id="overlay">読み込み中...</div>
+
+<script>
+const url = "https://script.google.com/macros/s/AKfycbz-nIVhj5GWlsleZIymdl0AFwrbuD4rmQrbRZWNHhYlAr2RA7oEkRuvqGuFyi9_EsxIqw/exec";
+const storageKey = "lastHtml_" + url;
+
+function updateOverlay() {
+  fetch(url + "?t=" + Date.now()) // キャッシュ回避
+    .then(res => res.json())
+    .then(data => {
+      if (data.updated) {
+        document.getElementById("overlay").innerHTML = data.html;
+        localStorage.setItem(storageKey, data.html);
+      } else {
+        const saved = localStorage.getItem(storageKey);
+        if (saved) {
+          document.getElementById("overlay").innerHTML = saved;
+        }
+      }
+    })
+    .catch(err => console.error(err));
+}
+
+window.onload = function() {
+  const saved = localStorage.getItem(storageKey);
+  if (saved) {
+    document.getElementById("overlay").innerHTML = saved;
+  }
+  updateOverlay();
+  setInterval(updateOverlay, 5000);
+};
+</script>
+</body>
+</html>

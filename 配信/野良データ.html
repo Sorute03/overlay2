@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>レート表示</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: transparent;
+      height: 100%;
+    }
+
+    #container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 20px;
+  font-family: sans-serif;
+  display: flex;
+  align-items: flex-start;
+  max-width: 400px;           /* ← 横幅を制限して折り返しやすく */
+  box-sizing: border-box;
+}
+
+#container img {
+  height: 36px;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+#data {
+  white-space: normal;
+  word-break: break-word;
+  line-height: 1.6;
+}
+
+    
+  </style>
+</head>
+<body>
+  <div id="container">
+    <img src="icon1.jpg" alt="Icon">
+    <div id="data">読み込み中...</div>
+  </div>
+
+  <script>
+    const url = "https://script.google.com/macros/s/AKfycby3t271Up1D8JdbFFYN3yccOdm0nLVAlhY9NpKz1jJkg2KKn_O4R8p0Tn-m5SRpgB0Vyg/exec";
+
+    function updateOverlay() {
+      fetch(url + "?t=" + Date.now())
+        .then(res => res.json())
+        .then(data => {
+          if (data.html) {
+            const temp = document.createElement("div");
+            temp.innerHTML = data.html;
+            temp.querySelectorAll("img").forEach(el => el.remove());
+            document.getElementById("data").innerHTML = temp.innerHTML;
+          }
+        })
+        .catch(err => {
+          document.getElementById("data").innerHTML = "エラー: " + err;
+          console.error(err);
+        });
+    }
+
+    window.onload = function () {
+      updateOverlay();
+      setInterval(updateOverlay, 5000);
+    };
+  </script>
+</body>
+</html>
